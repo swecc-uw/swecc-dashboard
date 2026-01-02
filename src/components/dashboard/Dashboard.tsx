@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useContainers } from '../../hooks/useContainers'
 import { useContainerLogs } from '../../hooks/useContainerLogs'
 import { useAuth } from '../../hooks/useAuth'
@@ -135,12 +135,22 @@ const Dashboard: React.FC = () => {
     })
   }, [logs, logLevel, normalizedFilter])
 
+  const stopLoggingRef = useRef(stopLogging)
+  const handleStartLoggingRef = useRef(handleStartLogging)
+
+  useEffect(() => {
+    stopLoggingRef.current = stopLogging
+  }, [stopLogging])
+
+  useEffect(() => {
+    handleStartLoggingRef.current = handleStartLogging
+  }, [handleStartLogging])
 
   useEffect(() => {
     if (!currentContainer) return
-    stopLogging()
-    handleStartLogging()
-  }, [currentContainer, handleStartLogging, stopLogging])
+    stopLoggingRef.current()
+    handleStartLoggingRef.current()
+  }, [currentContainer])
 
   const refreshData = useCallback(async () => {
     await fetchContainers()
