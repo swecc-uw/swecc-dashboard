@@ -31,6 +31,12 @@
   --color-neutral-800: hsl(0, 0%, 20%);
   --color-neutral-900: hsl(0, 0%, 12%);
 
+  --color-toolbar-top: hsl(36, 30%, 92%);
+  --color-toolbar-bottom: hsl(34, 22%, 84%);
+  --color-toolbar-border: hsl(32, 18%, 68%);
+  --color-toolbar-highlight: hsla(0, 0%, 100%, 0.7);
+  --color-toolbar-shadow: hsla(0, 0%, 0%, 0.08);
+
   /* Light theme (default) */
   --color-background: var(--color-neutral-50);
   --color-surface: white;
@@ -52,8 +58,7 @@
   --shadow-focus: 0 0 0 3px var(--color-focus-ring);
 
   /* Typography */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-sans: 'Trebuchet MS', 'Lucida Grande', 'Tahoma', sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
     'Liberation Mono', monospace;
 
@@ -100,6 +105,11 @@
   --color-text-muted: var(--color-neutral-400);
   --color-border: var(--color-neutral-700);
   --color-divider: var(--color-neutral-800);
+  --color-toolbar-top: hsl(210, 18%, 22%);
+  --color-toolbar-bottom: hsl(210, 15%, 16%);
+  --color-toolbar-border: hsl(210, 12%, 30%);
+  --color-toolbar-highlight: hsla(0, 0%, 100%, 0.08);
+  --color-toolbar-shadow: hsla(0, 0%, 0%, 0.3);
 
   /* Adjust shadows for dark mode */
   --shadow-sm: 0 1px 2px hsla(0, 0%, 0%, 0.15);

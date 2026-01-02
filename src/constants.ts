@@ -1,4 +1,4 @@
-export const LOCAL_API_ENDPOINT = 'http://localhost'
+export const LOCAL_API_ENDPOINT = 'http://localhost:8000'
 export const PROD_API_ENDPOINT = 'https://api.swecc.org'
 
 export const IS_DEV =

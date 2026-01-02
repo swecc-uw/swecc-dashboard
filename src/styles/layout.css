@@ -1,57 +1,21 @@
 /* Main container */
 .container {
   width: 100%;
-  max-width: 1300px;
+  max-width: none;
   margin: 0 auto;
-}
-
-/* Header */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
-}
-
-#auth-status {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-}
-
-#logged-in-view {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--spacing-xs);
-}
-
-#user-info {
-  display: flex;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  padding: 0;
 }
 
-#admin-badge,
-#verified-badge {
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: white;
+main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
-
-#admin-badge {
-  background-color: var(--color-primary);
-}
-
-#verified-badge {
-  background-color: var(--color-success);
-}
-
-/* Authentication forms */
 .auth-form {
   max-width: 400px;
   margin: 0 auto var(--spacing-xl);
