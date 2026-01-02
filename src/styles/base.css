@@ -11,11 +11,26 @@ body {
   line-height: 1.5;
   color: var(--color-text);
   background-color: var(--color-background);
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--spacing-md);
+  background-image: radial-gradient(
+      circle at top left,
+      rgba(255, 240, 210, 0.45),
+      rgba(255, 255, 255, 0)
+    ),
+    linear-gradient(135deg, #f7f5ef 0%, #eef3f8 65%, #f5efe3 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.dark-mode {
+  background-image: radial-gradient(
+      circle at top left,
+      rgba(56, 70, 90, 0.35),
+      rgba(15, 18, 24, 0)
+    ),
+    linear-gradient(140deg, #141821 0%, #1a202c 55%, #12161f 100%);
 }
 
 /* Typography */

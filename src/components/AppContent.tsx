@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth'
 import Login from './auth/Login'
 import AccessDenied from './auth/AccessDenied'
 import Dashboard from './dashboard/Dashboard'
-import Header from './ui/Header'
 import { IS_DEV } from '../constants'
 import { getCSRF } from '../services/api'
 
@@ -32,7 +31,6 @@ const AppContent: React.FC = () => {
   if (loading) {
     return (
       <div className='container'>
-        <Header />
         <p id='loading-message'>Loading...</p>
       </div>
     )
@@ -40,7 +38,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className='container'>
-      <Header />
       <DevIndicator apiHost={apiHost} />
 
       <main>
