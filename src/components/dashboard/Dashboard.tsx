@@ -13,6 +13,7 @@ import { REFRESH_INTERVALS, DEFAULT_REFRESH_INTERVAL } from '../../constants'
 
 const Dashboard: React.FC = () => {
   const [currentContainer, setCurrentContainer] = useState<string | null>(null)
+  const [containerInput, setContainerInput] = useState<string>('')
   const [refreshInterval, setRefreshInterval] = useState<number>(
     DEFAULT_REFRESH_INTERVAL
   )
@@ -54,12 +55,17 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (containerNames.length > 0 && !currentContainer) {
       setCurrentContainer(containerNames[0])
+      setContainerInput(containerNames[0])
     }
   }, [containerNames, currentContainer])
 
   const handleContainerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const containerName = e.target.value
-    setCurrentContainer(containerName)
+    setContainerInput(containerName)
+
+    if (containerNames.includes(containerName)) {
+      setCurrentContainer(containerName)
+    }
   }
 
   const handleRefreshIntervalChange = (
@@ -166,7 +172,7 @@ const Dashboard: React.FC = () => {
             id='container-selector'
             type='text'
             list='container-options'
-            value={currentContainer || ''}
+            value={containerInput}
             onChange={handleContainerChange}
             placeholder='Select container'
             aria-label='Select a container'
