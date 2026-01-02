@@ -63,111 +63,115 @@ export function useContainerLogs (containerName: string | null) {
     }
   }, [fetchJwtToken, token])
 
-  const connectWebSocket = useCallback(() => {
-    if (!token || !containerName) return
+  const connectWebSocket = useCallback(
+    (targetContainer?: string | null) => {
+      const resolvedContainer = targetContainer ?? containerName
+      if (!token || !resolvedContainer) return
 
-    if (socketRef.current) {
+      if (socketRef.current) {
+        try {
+          socketRef.current.close()
+        } catch (e) {
+          log('Error closing existing socket:', e)
+        }
+        socketRef.current = null
+      }
+
       try {
-        socketRef.current.close()
-      } catch (e) {
-        log('Error closing existing socket:', e)
-      }
-      socketRef.current = null
-    }
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const wsBaseUrl = IS_DEV
+          ? `${protocol}//localhost:8004`
+          : `${protocol}//api.swecc.org`
 
-    try {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsBaseUrl = IS_DEV
-        ? `${protocol}//localhost:8004`
-        : `${protocol}//api.swecc.org`
+        const wsUrl = `${wsBaseUrl}/ws/logs/${token}`
+        log(`Connecting to WebSocket: ${wsUrl}`)
 
-      const wsUrl = `${wsBaseUrl}/ws/logs/${token}`
-      log(`Connecting to WebSocket: ${wsUrl}`)
+        const socket = new WebSocket(wsUrl)
+        socketRef.current = socket
 
-      const socket = new WebSocket(wsUrl)
-      socketRef.current = socket
+        socket.onopen = () => {
+          log('WebSocket connected')
+          setIsStreaming(true)
+          reconnectAttemptsRef.current = 0
 
-      socket.onopen = () => {
-        log('WebSocket connected')
-        setIsStreaming(true)
-        reconnectAttemptsRef.current = 0
+          try {
+            socket.send(
+              JSON.stringify({
+                type: 'start_logs',
+                container_name: resolvedContainer
+              })
+            )
+            log(`Sent start_logs request for ${resolvedContainer}`)
 
-        try {
-          socket.send(
-            JSON.stringify({
-              type: 'start_logs',
-              container_name: containerName
+            addLogEntry({
+              type: 'logs_started',
+              message: `Log streaming started for ${resolvedContainer}`
             })
-          )
-          log(`Sent start_logs request for ${containerName}`)
-
-          addLogEntry({
-            type: 'logs_started',
-            message: `Log streaming started for ${containerName}`
-          })
-        } catch (error) {
-          log('Error sending start_logs message:', error)
-          addLogEntry({
-            type: 'error',
-            message: `Failed to start logs: ${String(error)}`
-          })
+          } catch (error) {
+            log('Error sending start_logs message:', error)
+            addLogEntry({
+              type: 'error',
+              message: `Failed to start logs: ${String(error)}`
+            })
+          }
         }
-      }
 
-      socket.onmessage = event => {
-        try {
-          const data = JSON.parse(event.data) as LogEntry
-          log('Received message type:', data.type)
-          addLogEntry(data)
-        } catch (error) {
-          log('Error parsing log message:', error, event.data)
-          addLogEntry({
-            type: 'error',
-            message: `Failed to parse log message: ${String(error)}`
-          })
+        socket.onmessage = event => {
+          try {
+            const data = JSON.parse(event.data) as LogEntry
+            log('Received message type:', data.type)
+            addLogEntry(data)
+          } catch (error) {
+            log('Error parsing log message:', error, event.data)
+            addLogEntry({
+              type: 'error',
+              message: `Failed to parse log message: ${String(error)}`
+            })
+          }
         }
-      }
 
-      socket.onclose = event => {
-        setIsStreaming(false)
-        log(
-          `WebSocket closed: ${event.code} - ${
-            event.reason || 'No reason provided'
-          }`
-        )
-
-        if (!intentionalClosureRef.current && event.code !== 1000) {
-          attemptReconnect()
-        } else {
+        socket.onclose = event => {
+          setIsStreaming(false)
           log(
-            'Not reconnecting due to intentional closure or normal close code'
+            `WebSocket closed: ${event.code} - ${
+              event.reason || 'No reason provided'
+            }`
           )
-        }
-      }
 
-      socket.onerror = event => {
-        log('WebSocket error:', event)
+          if (!intentionalClosureRef.current && event.code !== 1000) {
+            attemptReconnect()
+          } else {
+            log(
+              'Not reconnecting due to intentional closure or normal close code'
+            )
+          }
+        }
+
+        socket.onerror = event => {
+          log('WebSocket error:', event)
+          addLogEntry({
+            type: 'error',
+            message: 'WebSocket connection error'
+          })
+        }
+
+        addLogEntry({
+          type: 'system',
+          message: `Connecting to logs for ${resolvedContainer}...`
+        })
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        log('Error creating WebSocket:', error)
         addLogEntry({
           type: 'error',
-          message: 'WebSocket connection error'
+          message: `Failed to connect to log service: ${errorMessage}`
         })
+        setError(`Failed to connect to log service: ${errorMessage}`)
       }
-
-      addLogEntry({
-        type: 'system',
-        message: `Connecting to logs for ${containerName}...`
-      })
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      log('Error creating WebSocket:', error)
-      addLogEntry({
-        type: 'error',
-        message: `Failed to connect to log service: ${errorMessage}`
-      })
-      setError(`Failed to connect to log service: ${errorMessage}`)
-    }
-  }, [token, containerName])
+    },
+    [token, containerName]
+  )
 
   const attemptReconnect = useCallback(() => {
     if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
@@ -222,8 +226,9 @@ export function useContainerLogs (containerName: string | null) {
     })
   }, [])
 
-  const startLogging = useCallback(async () => {
-    if (!containerName) {
+  const startLogging = useCallback(async (targetContainer?: string | null) => {
+    const resolvedContainer = targetContainer ?? containerName
+    if (!resolvedContainer) {
       setError('Please select a container first')
       return
     }
@@ -246,7 +251,7 @@ export function useContainerLogs (containerName: string | null) {
       }
     }
 
-    connectWebSocket()
+    connectWebSocket(resolvedContainer)
   }, [containerName, token, fetchJwtToken, connectWebSocket])
 
   const stopLogging = useCallback(() => {

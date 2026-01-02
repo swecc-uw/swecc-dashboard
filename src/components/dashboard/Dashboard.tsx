@@ -68,16 +68,19 @@ const Dashboard: React.FC = () => {
     setRefreshInterval(interval)
   }
 
-  const handleStartLogging = useCallback(async () => {
+  const handleStartLogging = useCallback(
+    async (targetContainer?: string | null) => {
     try {
       setLogError(null)
-      await startLogging()
+      await startLogging(targetContainer)
     } catch (err) {
       setLogError(
         err instanceof Error ? err.message : 'Failed to start log streaming'
       )
     }
-  }, [startLogging])
+    },
+    [startLogging]
+  )
 
   const handleTimestampsToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowTimestamps(e.target.checked)
@@ -142,7 +145,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!currentContainer) return
     stopLoggingRef.current()
-    handleStartLoggingRef.current()
+    handleStartLoggingRef.current(currentContainer)
   }, [currentContainer])
 
   const refreshData = useCallback(async () => {
