@@ -13,7 +13,6 @@ import { REFRESH_INTERVALS, DEFAULT_REFRESH_INTERVAL } from '../../constants'
 
 const Dashboard: React.FC = () => {
   const [currentContainer, setCurrentContainer] = useState<string | null>(null)
-  const [containerInput, setContainerInput] = useState<string>('')
   const [refreshInterval, setRefreshInterval] = useState<number>(
     DEFAULT_REFRESH_INTERVAL
   )
@@ -55,17 +54,11 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (containerNames.length > 0 && !currentContainer) {
       setCurrentContainer(containerNames[0])
-      setContainerInput(containerNames[0])
     }
   }, [containerNames, currentContainer])
 
-  const handleContainerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const containerName = e.target.value
-    setContainerInput(containerName)
-
-    if (containerNames.includes(containerName)) {
-      setCurrentContainer(containerName)
-    }
+  const handleContainerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentContainer(e.target.value)
   }
 
   const handleRefreshIntervalChange = (
@@ -178,25 +171,19 @@ const Dashboard: React.FC = () => {
           <label htmlFor='container-selector' className='toolbar-label'>
             Container
           </label>
-          <input
+          <select
             id='container-selector'
-            type='text'
-            list='container-options'
-            value={containerInput}
+            value={currentContainer || ''}
             onChange={handleContainerChange}
-            placeholder='Select container'
             aria-label='Select a container'
             className='toolbar-field'
-          />
-          <datalist id='container-options'>
-            {Object.entries(containers).map(([name, status]) => (
-              <option
-                key={name}
-                value={name}
-                label={`${name} (${status})`}
-              />
+          >
+            {containerNames.map(name => (
+              <option key={name} value={name}>
+                {name} ({containers[name] || 'unknown'})
+              </option>
             ))}
-          </datalist>
+          </select>
           <button
             id='details-toggle'
             onClick={() => setShowDetails(prev => !prev)}
